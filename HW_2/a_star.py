@@ -31,9 +31,23 @@ def a_star(puzzle):
     prev = {initial.to_string(): None}
 
     while len(fringe) > 0:
-        # remove the following line and complete the algorithm
-        assert False
+        _, u_state = heapq.heappop(fringe)
+        u_state_string = u_state.to_string()
+        if u_state_string in concluded:
+            continue
 
+        concluded.add(u_state.to_string())
+        if u_state == goal:
+            break
+        neighbors = [u_state.apply_action(possible_action) for possible_action in u_state.get_actions()]
+        for v_state in neighbors:
+            alt = distances[u_state_string] + 1
+            v_state_string = v_state.to_string()
+            if v_state_string not in distances or alt < distances[v_state_string]:  # update distance is required
+                distances[v_state_string] = alt
+                prev[v_state_string] = u_state
+                heuristic_value = v_state.get_manhattan_distance(goal)
+                heapq.heappush(fringe, (alt + heuristic_value, v_state))
     return prev
 
 
@@ -61,4 +75,4 @@ if __name__ == '__main__':
     print('original number of actions:{}'.format(len(actions)))
     solution_start_time = datetime.datetime.now()
     solve(puzzle)
-    print('time to solve {}'.format(datetime.datetime.now()-solution_start_time))
+    print('time to solve {}'.format(datetime.datetime.now() - solution_start_time))

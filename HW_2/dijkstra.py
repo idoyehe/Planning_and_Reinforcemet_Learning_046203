@@ -28,20 +28,19 @@ def dijkstra(puzzle):
     prev = {initial.to_string(): None}
 
     while len(fringe) > 0:
-        cost, u_state = heapq.heappop(fringe)
+        _, u_state = heapq.heappop(fringe)
         u_state_string = u_state.to_string()
         if u_state_string in concluded:
             continue
 
         concluded.add(u_state.to_string())
-        if u_state == goal_state:
+        if u_state == goal:
             break
-
-        for possible_action in u_state.get_actions():
+        neighbors = [u_state.apply_action(possible_action) for possible_action in u_state.get_actions()]
+        for v_state in neighbors:
             alt = distances[u_state_string] + 1
-            v_state = u_state.apply_action(possible_action)
             v_state_string = v_state.to_string()
-            if v_state_string not in distances or alt < distances[v_state_string]:
+            if v_state_string not in distances or alt < distances[v_state_string]:  # update distance is required
                 distances[v_state_string] = alt
                 prev[v_state_string] = u_state
                 heapq.heappush(fringe, (alt, v_state))

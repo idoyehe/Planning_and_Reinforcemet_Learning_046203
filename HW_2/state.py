@@ -4,7 +4,7 @@ import os
 class State:
     def __init__(self, s=None):
         if s is None:
-            self._array = [[str(3*i + j) for j in range(3)] for i in range(3)]
+            self._array = [[str(3 * i + j) for j in range(3)] for i in range(3)]
         else:
             array = [[c for c in line.split(' ')] for line in s.split(os.linesep)]
             assert len(array) == 3
@@ -16,7 +16,6 @@ class State:
         result = State()
         result._array = [[c for c in a] for a in self._array]
         return result
-
 
     def _get_location_char(self, c):
         for i in range(3):
