@@ -1,5 +1,6 @@
 import numpy as np
 from cartpole_cont import CartPoleContEnv
+from json import dump
 
 
 def get_A(cart_pole_env):
@@ -116,9 +117,9 @@ def print_diff(iteration, planned_theta, actual_theta, planned_action, actual_ac
 
 
 if __name__ == '__main__':
-    env = CartPoleContEnv(initial_theta=np.pi * 0.1)
+    # env = CartPoleContEnv(initial_theta=np.pi * 0.1)
     # the following is an example to start at a different theta
-    # env = CartPoleContEnv(initial_theta=np.pi * 0.25)
+    env = CartPoleContEnv(initial_theta=np.pi * 0.4 * 0.5)
 
     # print the matrices used in LQR
     print('A: {}'.format(get_A(env)))
@@ -133,16 +134,19 @@ if __name__ == '__main__':
     is_done = False
     iteration = 0
     is_stable_all = []
+    theta_records = []
     while not is_done:
         # print the differences between planning and execution time
         predicted_theta = xs[iteration].item(2)
         actual_theta = actual_state[2]
+        theta_records.append(actual_theta)
         predicted_action = us[iteration].item(0)
         actual_action = (Ks[iteration] * np.expand_dims(actual_state, 1)).item(0)
         print_diff(iteration, predicted_theta, actual_theta, predicted_action, actual_action)
         # apply action according to actual state visited
         # make action in range
         actual_action = max(env.action_space.low.item(0), min(env.action_space.high.item(0), actual_action))
+        # actual_action = predicted_action # feedforward control
         actual_action = np.array([actual_action])
         actual_state, reward, is_done, _ = env.step(actual_action)
         is_stable = reward == 1.0
@@ -154,3 +158,7 @@ if __name__ == '__main__':
     valid_episode = np.all(is_stable_all[-100:])
     # print if LQR succeeded
     print('valid episode: {}'.format(valid_episode))
+
+    # with open('05unstable_records_force_limitation.json', 'w') as f:
+    #     dump(theta_records, f)
+    #     f.close()
