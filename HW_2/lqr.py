@@ -13,8 +13,15 @@ def get_A(cart_pole_env):
     cart_mass = cart_pole_env.masscart
     pole_length = cart_pole_env.length
     dt = cart_pole_env.tau
+    moment_of_inertia = pole_mass * (pole_length ** 2)
 
-    return np.matrix([[0]])
+    A_bar = np.matrix([[0, 1, 0, 0],
+                       [0, 0, ((pole_mass * g) / cart_mass), 0],
+                       [0, 0, 0, 1],
+                       [0, 0, (g / pole_length) * (1 + (pole_mass / cart_mass)), 0]])
+    A = np.identity(4) + (dt * A_bar)
+
+    return A
 
 
 def get_B(cart_pole_env):
@@ -29,7 +36,14 @@ def get_B(cart_pole_env):
     pole_length = cart_pole_env.length
     dt = cart_pole_env.tau
 
-    return np.matrix([[0]])
+    B_bar = np.matrix([[0],
+                       [1 / cart_mass],
+                       [0],
+                       [1 / (cart_mass * pole_length)]])
+
+    B = B_bar * dt
+
+    return B
 
 
 def find_lqr_control_input(cart_pole_env):
@@ -42,27 +56,45 @@ def find_lqr_control_input(cart_pole_env):
     '''
     assert isinstance(cart_pole_env, CartPoleContEnv)
 
-    # TODO - you first need to compute A and B for LQR
     A = get_A(cart_pole_env)
     B = get_B(cart_pole_env)
 
-    # TODO - Q and R should not be zero, find values that work, hint: all the values can be <= 1.0
+    A_T = A.T
+    B_T = B.T
+
     Q = np.matrix([
         [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0]
+        [0, 1, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]
     ])
 
-    R = np.matrix([0])
+    R = np.matrix([1])
 
-    # TODO - you need to compute these matrices in your solution, but these are not returned.
-    Ps = []
+    Ps = [Q]
+    horizon = cart_pole_env.planning_steps
+    Ks = []
+    for _ in range(horizon):
+        p_t_1 = Ps[-1]
+        common_expression = ((R + B_T * p_t_1 * B).I) * B_T * p_t_1 * A
+        prev_k = -common_expression
+        prev_p = Q + (A_T * p_t_1 * A) - (A_T * p_t_1 * B * common_expression)
+        Ks.append(prev_k)
+        Ps.append(prev_p)
 
-    # TODO - these should be returned see documentation above
+    Ps.reverse()
+    Ks.reverse()
+
     us = []
     xs = [np.expand_dims(cart_pole_env.state, 1)]
-    Ks = []
+
+    for controller_gain in Ks:
+        current_state = xs[-1]
+        current_action = controller_gain * current_state
+        next_state = (A * current_state) + (B * current_action)
+
+        us.append(current_action)
+        xs.append(next_state)
 
     assert len(xs) == cart_pole_env.planning_steps + 1, "if you plan for x states there should be X+1 states here"
     assert len(us) == cart_pole_env.planning_steps, "if you plan for x states there should be X actions here"
@@ -122,4 +154,3 @@ if __name__ == '__main__':
     valid_episode = np.all(is_stable_all[-100:])
     # print if LQR succeeded
     print('valid episode: {}'.format(valid_episode))
-
