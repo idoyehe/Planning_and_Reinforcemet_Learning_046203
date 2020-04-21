@@ -117,9 +117,9 @@ def print_diff(iteration, planned_theta, actual_theta, planned_action, actual_ac
 
 
 if __name__ == '__main__':
-    # env = CartPoleContEnv(initial_theta=np.pi * 0.1)
+    env = CartPoleContEnv(initial_theta=np.pi * 0.1)
     # the following is an example to start at a different theta
-    env = CartPoleContEnv(initial_theta=np.pi * 0.4 * 0.5)
+    # env = CartPoleContEnv(initial_theta=np.pi * 0.4)
 
     # print the matrices used in LQR
     print('A: {}'.format(get_A(env)))
@@ -159,6 +159,6 @@ if __name__ == '__main__':
     # print if LQR succeeded
     print('valid episode: {}'.format(valid_episode))
 
-    # with open('05unstable_records_force_limitation.json', 'w') as f:
+    # with open('unstable_theta_records_feedforward.json', 'w') as f:
     #     dump(theta_records, f)
     #     f.close()
