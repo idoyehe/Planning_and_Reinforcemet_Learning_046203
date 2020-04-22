@@ -142,11 +142,11 @@ if __name__ == '__main__':
         theta_records.append(actual_theta)
         predicted_action = us[iteration].item(0)
         actual_action = (Ks[iteration] * np.expand_dims(actual_state, 1)).item(0)
+        # actual_action = predicted_action # feedforward control
         print_diff(iteration, predicted_theta, actual_theta, predicted_action, actual_action)
         # apply action according to actual state visited
         # make action in range
         actual_action = max(env.action_space.low.item(0), min(env.action_space.high.item(0), actual_action))
-        # actual_action = predicted_action # feedforward control
         actual_action = np.array([actual_action])
         actual_state, reward, is_done, _ = env.step(actual_action)
         is_stable = reward == 1.0
