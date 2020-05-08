@@ -1,6 +1,6 @@
 from a_star import solve as solve_a_star
 from dijkstra import solve as solve_dijkstra
-from HW_2.dijkstra import *
+from Wet_1.dijkstra import *
 import random
 import pickle
 import sys, os
