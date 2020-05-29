@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from json import loads
+from json import loads, dumps
 from job_scheduling_states import \
     STATE_SPACE_INDEX_DICT, \
     STATE_SPACE_SIZE, \
@@ -19,8 +19,8 @@ def __build_transition_matrix_by_policy(policy):
             assert chosen_job in from_state
             to_state.remove(chosen_job)
             job_meu = JOB_COST_MEU_DICT[chosen_job]["u"]
-            i = STATE_SPACE_INDEX_DICT[str(from_state)]
-            j = STATE_SPACE_INDEX_DICT[str(to_state)]
+            i = STATE_SPACE_INDEX_DICT[dumps(from_state)]
+            j = STATE_SPACE_INDEX_DICT[dumps(to_state)]
             prob_trans[i][j] = job_meu
             prob_trans[i][i] = 1 - job_meu
     return prob_trans
@@ -30,7 +30,7 @@ def calculate_value_function_by_policy(policy):
     assert policy.shape == COST_VECTOR.shape
     transition_matrix = __build_transition_matrix_by_policy(policy)
     value_function = np.linalg.inv(np.eye(N=STATE_SPACE_SIZE) - transition_matrix) @ COST_VECTOR
-    value_function[STATE_SPACE_INDEX_DICT[str([])]] = 0
+    value_function[STATE_SPACE_INDEX_DICT[dumps([])]] = 0
     return value_function
 
 
@@ -90,10 +90,10 @@ def policy_iteration():
             current_min_value = float("inf")
             current_best_action = -1
             for job in state:
-                state_tag = list(state)
+                state_tag = list(state)  # copy
                 state_tag.remove(job)
-                assert str(state_tag) in STATE_SPACE_INDEX_DICT.keys()
-                state_tag_index = STATE_SPACE_INDEX_DICT[str(state_tag)]
+                assert dumps(state_tag) in STATE_SPACE_INDEX_DICT.keys()
+                state_tag_index = STATE_SPACE_INDEX_DICT[dumps(state_tag)]
 
                 job_done_prob = JOB_COST_MEU_DICT[job]["u"]
                 job_not_done_prob = 1 - job_done_prob
@@ -136,10 +136,6 @@ def e_task_compare_policies(optimal_policy):
     ax.set_title("Value Function Vs. States")
     ax.legend()
     plt.show()
-
-
-def simulator(current_state: str, action: int):
-    current_state = loads(current_state)
 
 
 b_task_greedy_policy_by_cost(True)
