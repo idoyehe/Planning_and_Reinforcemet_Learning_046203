@@ -10,6 +10,7 @@ from job_scheduling_states import \
     STATE_SPACE_COST, \
     INIT_STATE
 from job_scheduling import b_task_greedy_policy_by_cost
+from statistics import mean
 
 
 def simulator(current_state: str, action: int):
@@ -69,32 +70,51 @@ def TD_0(episodes, alpha_n_method):
     return max_norm_delta, s0_delta
 
 
-#
-# def TD_lamda(n, lamda):
-#     visited_in_state = defaultdict(lambda: 1)
-#     cost_greedy_policy, cost_greedy_values = b_task_greedy_policy_by_cost()
-#     value_function = np.zeros(shape=(len(STATE_SPACE_INDEX_DICT.keys()), 1))
-#     eligibility = np.zeros(shape=(len(STATE_SPACE_INDEX_DICT.keys()), 1))
-#
-#     max_norm_delta = list()
-#     s0_delta = list()
-#
-#     init_state = INIT_STATE
-#
-#     for iteration in range(n):
-#         cost_state, next_state = simulator(state, int(cost_greedy_policy[state_index]))
-#         next_state_index = STATE_SPACE_INDEX_DICT[next_state]
-#         visited_in_state[next_state] += 1
-#
-#         alpha_n = 10 / (100 + visited_in_state[state])
-#         d_n = cost_state + float(current_value[next_state_index]) - float(current_value[state_index])
-#         next_value_function[state_index] = current_value[state_index] + alpha_n * d_n
-#     current_value = next_value_function
-#     max_norm_delta.append(np.max(np.abs(current_value - cost_greedy_values)))
-#     s0_delta.append(np.abs(current_value[0] - cost_greedy_values[0])[0])
-#
-#
-# return max_norm_delta, s0_delta
+def TD_lamda(n_iter, lamda):
+    cost_greedy_policy, cost_greedy_values = b_task_greedy_policy_by_cost()
+    max_norm_delta_exp = list()
+    s0_delta_exp = list()
+
+    for _ in range(20):
+        visited_in_state_counter = defaultdict(int)
+        current_state = INIT_STATE
+        visited_in_state_counter[current_state] += 1
+        value_function = np.zeros(shape=(len(STATE_SPACE_INDEX_DICT.keys()), 1))
+        eligibility = np.zeros(value_function.shape)
+        max_norm_delta = list()
+        s0_delta = list()
+        current_state = INIT_STATE
+        current_state_index = STATE_SPACE_INDEX_DICT[current_state]
+        visited_in_state_counter[current_state] += 1
+        for _ in range(n_iter):
+            cost_state, next_state, done = simulator(current_state, int(cost_greedy_policy[current_state_index]))
+            next_state_index = STATE_SPACE_INDEX_DICT[next_state]
+            visited_in_state_counter[next_state] += 1
+
+            eligibility *= lamda * 1
+            eligibility[current_state_index] += 1.0
+
+            alpha_n = 10 / (100 + visited_in_state_counter[current_state])
+
+            td_error = cost_state + float(value_function[next_state_index]) - float(
+                value_function[current_state_index])
+            value_function = value_function + alpha_n * td_error * eligibility
+
+            if done:
+                current_state = INIT_STATE
+                current_state_index = STATE_SPACE_INDEX_DICT[current_state]
+            else:
+                current_state = next_state
+                current_state_index = next_state_index
+
+            max_norm_delta.append(np.max(np.abs(value_function - cost_greedy_values)))
+            s0_delta.append(np.abs(value_function[0] - cost_greedy_values[0])[0])
+
+        max_norm_delta_exp.append(max_norm_delta)
+        s0_delta_exp.append(s0_delta)
+    max_norm_delta_exp = list(map(mean, zip(*max_norm_delta_exp)))
+    s0_delta_exp = list(map(mean, zip(*s0_delta_exp)))
+    return max_norm_delta_exp, s0_delta_exp
 
 
 def __plot_deltas(max_norm_delta, s0_delta):
@@ -121,4 +141,16 @@ if __name__ == "__main__":
 
     # alpha n is 10 / (100 + number of visits)
     max_norm_delta, s0_delta = TD_0(episodes, 3)
+    __plot_deltas(max_norm_delta, s0_delta)
+
+    # alpha n is 10 / (100 + number of visits) of visits and lambda is 0
+    max_norm_delta, s0_delta = TD_lamda(episodes, 0)
+    __plot_deltas(max_norm_delta, s0_delta)
+
+    # alpha n is 10 / (100 + number of visits) of visits and lambda is 0
+    max_norm_delta, s0_delta = TD_lamda(episodes, 0.5)
+    __plot_deltas(max_norm_delta, s0_delta)
+
+    # alpha n is 10 / (100 + number of visits) of visits and lambda is 0
+    max_norm_delta, s0_delta = TD_lamda(episodes, 0.9)
     __plot_deltas(max_norm_delta, s0_delta)
