@@ -1,4 +1,5 @@
 import numpy as np
+from json import dumps
 
 JOB_COST_MEU_DICT = {
     1: {"c": 1, "u": 0.6, "cu": 0.6},
@@ -17,9 +18,9 @@ def __build_state_space(state):
     if state == []:
         return
     else:
-        if str(state) not in STATE_SPACE_INDEX_DICT.keys():
-            STATE_SPACE_INDEX_DICT[str(state)] = len(STATE_SPACE_INDEX_DICT.keys())
-            STATE_SPACE_COST[str(state)] = sum([JOB_COST_MEU_DICT[job]["c"] for job in state])
+        if dumps(state) not in STATE_SPACE_INDEX_DICT.keys():
+            STATE_SPACE_INDEX_DICT[dumps(state)] = len(STATE_SPACE_INDEX_DICT.keys())
+            STATE_SPACE_COST[dumps(state)] = sum([JOB_COST_MEU_DICT[job]["c"] for job in state])
     for j in state:
         bstate = list(state)
         bstate.remove(j)
@@ -38,8 +39,8 @@ def __build_cost_vector(state_space_size):
 def __build_state_space_all():
     __build_state_space([1, 2, 3, 4, 5])
     state_space_size = len(STATE_SPACE_INDEX_DICT.keys())
-    STATE_SPACE_INDEX_DICT[str([])] = state_space_size
-    STATE_SPACE_COST[str([])] = 0
+    STATE_SPACE_INDEX_DICT[dumps([])] = state_space_size
+    STATE_SPACE_COST[dumps([])] = 0
     state_space_size += 1
     return state_space_size
 

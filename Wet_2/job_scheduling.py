@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import json
+from json import loads
 from job_scheduling_states import \
     STATE_SPACE_INDEX_DICT, \
     STATE_SPACE_SIZE, \
@@ -12,7 +12,7 @@ from job_scheduling_states import \
 def __build_transition_matrix_by_policy(policy):
     prob_trans = np.zeros(shape=(STATE_SPACE_SIZE, STATE_SPACE_SIZE))
     for from_state, index in STATE_SPACE_INDEX_DICT.items():
-        from_state = json.loads(from_state)
+        from_state = loads(from_state)
         if len(from_state) > 0:
             chosen_job = int(policy[index])
             to_state = list(from_state)
@@ -39,7 +39,7 @@ def b_task_greedy_policy_by_cost(plot=False):
 
     # generating greedy policy
     for state, index in STATE_SPACE_INDEX_DICT.items():
-        state = json.loads(state)
+        state = loads(state)
         if len(state) > 0:
             jobs_and_cost = [(job, JOB_COST_MEU_DICT[job]["c"]) for job in state]
             policy[index] = max(jobs_and_cost, key=lambda x: x[1])[0]
@@ -65,7 +65,7 @@ def __optimal_policy():
     opt_policy = np.zeros(shape=(STATE_SPACE_SIZE, 1))
     # generating optimal policy for validation
     for state, index in STATE_SPACE_INDEX_DICT.items():
-        state = json.loads(state)
+        state = loads(state)
         if len(state) > 0:
             jobs_and_cost = [(job, JOB_COST_MEU_DICT[job]["cu"]) for job in state]
             opt_policy[index] = max(jobs_and_cost, key=lambda x: x[1])[0]
@@ -86,7 +86,7 @@ def policy_iteration():
         next_policy = np.zeros(shape=current_policy.shape)
         for state, state_index in STATE_SPACE_INDEX_DICT.items():
             cost_of_state = STATE_SPACE_COST[state]
-            state = json.loads(state)
+            state = loads(state)
             current_min_value = float("inf")
             current_best_action = -1
             for job in state:
@@ -136,6 +136,10 @@ def e_task_compare_policies(optimal_policy):
     ax.set_title("Value Function Vs. States")
     ax.legend()
     plt.show()
+
+
+def simulator(current_state: str, action: int):
+    current_state = loads(current_state)
 
 
 b_task_greedy_policy_by_cost(True)
