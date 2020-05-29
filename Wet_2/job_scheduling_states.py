@@ -11,6 +11,7 @@ JOB_COST_MEU_DICT = {
 
 STATE_SPACE_INDEX_DICT = dict()
 STATE_SPACE_COST = dict()
+INIT_STATE = dumps(list(range(1, 6)))
 
 
 def __build_state_space(state):

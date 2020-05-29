@@ -123,10 +123,10 @@ def policy_iteration():
 def e_task_compare_policies(optimal_policy):
     assert np.array_equal(optimal_policy, __optimal_policy())
     opt_value_function = calculate_value_function_by_policy(optimal_policy)
-    naive_greedy_policy, naive_greedy_values = b_task_greedy_policy_by_cost()
+    cost_greedy_policy, cost_greedy_values = b_task_greedy_policy_by_cost()
     fig, ax = plt.subplots(1, 1)
     ax.plot(list(STATE_SPACE_INDEX_DICT.values()), opt_value_function, label="Optimal Value Function")
-    ax.plot(list(STATE_SPACE_INDEX_DICT.values()), naive_greedy_values, label="Naive Greedy Value Function")
+    ax.plot(list(STATE_SPACE_INDEX_DICT.values()), cost_greedy_values, label="Cost Greedy Value Function")
     # Set number of ticks for x-axis
     ax.set_xticks(list(STATE_SPACE_INDEX_DICT.values()))
     # Set ticks labels for x-axis
@@ -138,6 +138,7 @@ def e_task_compare_policies(optimal_policy):
     plt.show()
 
 
-b_task_greedy_policy_by_cost(True)
-optimal = policy_iteration()
-e_task_compare_policies(optimal)
+if __name__ == "__main__":
+    b_task_greedy_policy_by_cost(True)
+    optimal = policy_iteration()
+    e_task_compare_policies(optimal)
