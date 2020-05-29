@@ -117,17 +117,17 @@ def __plot_deltas(max_norm_delta, s0_delta):
 
 if __name__ == "__main__":
     num_iteration = 10000
-    # # alpha n is 1/ number of visits
-    # max_norm_delta, s0_delta = q_learning(epsilon=0.1, num_iteration=num_iteration, alpha_n_method=1)
-    # __plot_deltas(max_norm_delta, s0_delta)
-    #
-    # # alpha n is 0.01
-    # max_norm_delta, s0_delta = q_learning(epsilon=0.1, num_iteration=num_iteration, alpha_n_method=2)
-    # __plot_deltas(max_norm_delta, s0_delta)
-    #
-    # # alpha n is 10 / (100 + number of visits)
-    # max_norm_delta, s0_delta = q_learning(epsilon=0.1, num_iteration=num_iteration, alpha_n_method=3)
-    # __plot_deltas(max_norm_delta, s0_delta)
+    # alpha n is 1/ number of visits
+    max_norm_delta, s0_delta = q_learning(epsilon=0.1, num_iteration=num_iteration, alpha_n_method=1)
+    __plot_deltas(max_norm_delta, s0_delta)
+
+    # alpha n is 0.01
+    max_norm_delta, s0_delta = q_learning(epsilon=0.1, num_iteration=num_iteration, alpha_n_method=2)
+    __plot_deltas(max_norm_delta, s0_delta)
+
+    # alpha n is 10 / (100 + number of visits)
+    max_norm_delta, s0_delta = q_learning(epsilon=0.1, num_iteration=num_iteration, alpha_n_method=3)
+    __plot_deltas(max_norm_delta, s0_delta)
 
     # alpha n is 10 / (100 + number of visits) with epsilon 0.01
     max_norm_delta, s0_delta = q_learning(epsilon=0.01, num_iteration=num_iteration, alpha_n_method=3)
