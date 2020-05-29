@@ -74,6 +74,10 @@ def __optimal_policy():
     return opt_policy
 
 
+def calculate_value_function_of_optimal_policy():
+    return calculate_value_function_by_policy(__optimal_policy())
+
+
 def policy_iteration():
     halt_flag = False
     current_policy = b_task_greedy_policy_by_cost()[0]

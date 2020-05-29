@@ -2,36 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from json import loads, dumps
 from collections import defaultdict
-from job_scheduling_states import \
-    STATE_SPACE_INDEX_DICT, \
-    STATE_SPACE_SIZE, \
-    COST_VECTOR, \
-    JOB_COST_MEU_DICT, \
-    STATE_SPACE_COST, \
-    INIT_STATE
+from job_scheduling_states import *
 from job_scheduling import b_task_greedy_policy_by_cost
 from statistics import mean
 
-
-def simulator(current_state: str, action: int):
-    current_state_cost = STATE_SPACE_COST[current_state]
-    current_state = loads(current_state)
-    if len(current_state) > 0:
-        assert action in current_state
-        next_state_job_done = list(current_state)
-        job = action
-        next_state_job_done.remove(job)
-        assert dumps(next_state_job_done) in STATE_SPACE_INDEX_DICT.keys()
-
-        job_done_prob = JOB_COST_MEU_DICT[job]["u"]
-        job_not_done_prob = 1 - job_done_prob
-        actual_random_next_state = \
-            np.random.choice([current_state, next_state_job_done], 1, p=[job_not_done_prob, job_done_prob])[0]
-
-        actual_random_next_state = dumps(actual_random_next_state)
-        return current_state_cost, actual_random_next_state, False
-    else:
-        return current_state_cost, dumps(current_state), True
 
 
 def TD_0(episodes, alpha_n_method):

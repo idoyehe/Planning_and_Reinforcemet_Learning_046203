@@ -1,5 +1,5 @@
 import numpy as np
-from json import dumps
+from json import dumps, loads
 
 JOB_COST_MEU_DICT = {
     1: {"c": 1, "u": 0.6, "cu": 0.6},
@@ -38,13 +38,35 @@ def __build_cost_vector(state_space_size):
 
 
 def __build_state_space_all():
-    __build_state_space([1, 2, 3, 4, 5])
+    jobs = list(JOB_COST_MEU_DICT.keys())
+    __build_state_space(jobs)
     state_space_size = len(STATE_SPACE_INDEX_DICT.keys())
     STATE_SPACE_INDEX_DICT[dumps([])] = state_space_size
     STATE_SPACE_COST[dumps([])] = 0
     state_space_size += 1
-    return state_space_size
+    return state_space_size, len(jobs)
 
 
-STATE_SPACE_SIZE = __build_state_space_all()
+STATE_SPACE_SIZE, ACTION_SPACE_SIZE = __build_state_space_all()
 COST_VECTOR = __build_cost_vector(STATE_SPACE_SIZE)
+
+
+def simulator(current_state: str, action: int):
+    current_state_cost = STATE_SPACE_COST[current_state]
+    current_state = loads(current_state)
+    if len(current_state) > 0:
+        assert action in current_state
+        next_state_job_done = list(current_state)
+        job = action
+        next_state_job_done.remove(job)
+        assert dumps(next_state_job_done) in STATE_SPACE_INDEX_DICT.keys()
+
+        job_done_prob = JOB_COST_MEU_DICT[job]["u"]
+        job_not_done_prob = 1 - job_done_prob
+        actual_random_next_state = \
+            np.random.choice([current_state, next_state_job_done], 1, p=[job_not_done_prob, job_done_prob])[0]
+
+        actual_random_next_state = dumps(actual_random_next_state)
+        return current_state_cost, actual_random_next_state, False
+    else:
+        return current_state_cost, dumps(current_state), True
