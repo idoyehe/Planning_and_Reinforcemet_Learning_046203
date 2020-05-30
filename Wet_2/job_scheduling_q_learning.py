@@ -56,7 +56,7 @@ def q_learning(epsilon, num_iteration, alpha_n_method):
             Q_S_A[state][-1] = 0
     epsilon_greedy_policy = createEpsilonGreedyPolicy(Q_S_A, epsilon)
 
-    visited_in_state_counter = np.zeros(shape=(STATE_SPACE_SIZE, ACTION_SPACE_SIZE+1))
+    visited_in_state_counter = np.zeros(shape=(STATE_SPACE_SIZE, ACTION_SPACE_SIZE + 1))
 
     max_norm_delta = list()
     s0_delta = list()
@@ -98,32 +98,50 @@ def q_learning(epsilon, num_iteration, alpha_n_method):
     return max_norm_delta, s0_delta
 
 
-def __plot_deltas(max_norm_delta, s0_delta):
+def __plot_deltas(graphs: dict, title, ylabel, xlabel="# Iterartions"):
     fig, ax = plt.subplots(1, 1)
-    ax.plot(list(range(len(max_norm_delta))), max_norm_delta, label="Max Norm Delta")
-    ax.plot(list(range(len(s0_delta))), s0_delta, label="Initial State Delta")
+    for label, data in graphs.items():
+        ax.plot(list(range(len(data))), data, label=label)
 
-    ax.set_xlabel("# Iterations")
-    ax.set_ylabel("Delta")
-    ax.set_title("Delta Vs. Iterations")
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
     ax.legend()
     plt.show()
 
 
 if __name__ == "__main__":
     num_iteration = 10000
+    s0_graphs_epsilon01 = dict()
+    inf_norm_graphs_epsilon01 = dict()
     # alpha n is 1/ number of visits
-    max_norm_delta, s0_delta = q_learning(epsilon=0.1, num_iteration=num_iteration, alpha_n_method=1)
-    __plot_deltas(max_norm_delta, s0_delta)
+    max_norm_delta_a1, s0_delta_a1 = q_learning(epsilon=0.1, num_iteration=num_iteration, alpha_n_method=1)
+    s0_graphs_epsilon01["S0 Delta alpha is 1/visits"] = s0_delta_a1
+    inf_norm_graphs_epsilon01["Inf Norm Delta alpha is 1/visits"] = max_norm_delta_a1
 
     # alpha n is 0.01
-    max_norm_delta, s0_delta = q_learning(epsilon=0.1, num_iteration=num_iteration, alpha_n_method=2)
-    __plot_deltas(max_norm_delta, s0_delta)
+    max_norm_delta_a2, s0_delta_a2 = q_learning(epsilon=0.1, num_iteration=num_iteration, alpha_n_method=2)
+    s0_graphs_epsilon01["S0 Delta alpha is 0.01"] = s0_delta_a2
+    inf_norm_graphs_epsilon01["Inf Norm Delta alpha is 0.01"] = max_norm_delta_a2
 
     # alpha n is 10 / (100 + number of visits)
-    max_norm_delta, s0_delta = q_learning(epsilon=0.1, num_iteration=num_iteration, alpha_n_method=3)
-    __plot_deltas(max_norm_delta, s0_delta)
+    max_norm_delta_a3, s0_delta_a3 = q_learning(epsilon=0.1, num_iteration=num_iteration, alpha_n_method=3)
+    s0_graphs_epsilon01["S0 Delta alpha is 10/(100 + visits)"] = s0_delta_a3
+    inf_norm_graphs_epsilon01["Inf Norm Delta alpha is 10/(100 + visits)"] = max_norm_delta_a3
+
+    __plot_deltas(graphs=s0_graphs_epsilon01, title="S0 Delta, Epsilon=0.1", ylabel="Delta")
+    __plot_deltas(graphs=inf_norm_graphs_epsilon01, title="Info Norm, Epsilon=0.1", ylabel="Delta")
+
 
     # alpha n is 10 / (100 + number of visits) with epsilon 0.01
-    max_norm_delta, s0_delta = q_learning(epsilon=0.01, num_iteration=num_iteration, alpha_n_method=3)
-    __plot_deltas(max_norm_delta, s0_delta)
+    s0_delta_dict_eps_001 = dict()
+    inf_norm_delta_dict_eps_001 = dict()
+    max_norm_delta_fav, s0_delta_fav = q_learning(epsilon=0.01, num_iteration=num_iteration, alpha_n_method=3)
+    s0_delta_dict_eps_001["S0 Delta epsilon=0.1"] = s0_delta_a3
+    s0_delta_dict_eps_001["S0 Delta epsilon=0.01"] = s0_delta_fav
+
+    inf_norm_delta_dict_eps_001["Inf Norm Delta epsilon=0.1"] = max_norm_delta_a3
+    inf_norm_delta_dict_eps_001["Inf Norm Delta epsilon=0.01"] = max_norm_delta_fav
+    __plot_deltas(graphs=s0_delta_dict_eps_001, title="S0 Delta, alpha=10/(100 + visits)", ylabel="Delta")
+    __plot_deltas(graphs=inf_norm_delta_dict_eps_001, title="Info Norm, alpha=10/(100 + visits)", ylabel="Delta")
+
