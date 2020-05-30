@@ -24,14 +24,14 @@ while not halt_flag:
             sum_for_hits = 0
             for hit_card, hit_probability in PROBABILITY_DICT.items():
                 if x + hit_card <= 21:
-                    sum_for_hits += hit_probability * v_f[x + hit_card, y]
+                    sum_for_hits += hit_probability * v_prev[x + hit_card, y]
                 else:
                     sum_for_hits += hit_probability * -1
 
             v_f[x, y] = max(r[x, y], sum_for_hits)
             actions[x, y] = np.argmax([r[x, y], sum_for_hits])
             halt_flag = np.array_equal(v_f, v_prev)
-            v_prev = v_f
+            v_prev = np.copy(v_f)
 
 fig = plt.figure()
 ax = plt.axes(projection='3d')
