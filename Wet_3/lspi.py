@@ -10,7 +10,26 @@ from game_player import GamePlayer
 
 def compute_lspi_iteration(encoded_states, encoded_next_states, actions, rewards, done_flags, linear_policy, gamma):
     # compute the next w given the data.
-    assert False, "implement compute_lspi_iteration function"
+
+    phi_st_at = linear_policy.get_q_features(encoded_states, actions)
+    a_t_1 = linear_policy.get_max_action(encoded_next_states)
+    a_t_1[np.where(done_flags == True)] = 1
+
+    phi_st1_at1 = linear_policy.get_q_features(encoded_next_states, a_t_1)
+
+    assert phi_st_at.shape == phi_st1_at1.shape
+
+    features = phi_st_at.shape[1]
+    n = encoded_states.shape[0]
+
+    d_k_n = np.sum((phi_st_at.transpose() * rewards).transpose(), axis=0).reshape(features, 1)
+
+    c_k_n = np.zeros(shape=(features, features))
+    for sample in range(n):
+        c_k_n += phi_st_at[sample].reshape(features, 1) @ (phi_st_at[sample] - gamma * phi_st1_at1[sample]).reshape((1, features))
+
+    next_w = np.linalg.inv(c_k_n) @ d_k_n
+
     return next_w
 
 
@@ -61,6 +80,3 @@ if __name__ == '__main__':
     print('done lspi')
     evaluator.play_games(evaluation_number_of_games, evaluation_max_steps_per_game)
     evaluator.play_game(evaluation_max_steps_per_game, render=True)
-
-
-
