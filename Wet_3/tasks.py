@@ -7,7 +7,7 @@ from data_collector import DataCollector
 
 # part 1 task 2
 def plotting_the_state_features():
-    rbf = RadialBasisFunctionExtractor(number_of_kernels_per_dim=[12, 10])
+    rbf = RadialBasisFunctionExtractor(number_of_kernels_per_dim=[10, 8])
     position_v, velocity_v, n = __discretize_state_space(200)
     states = np.zeros(shape=(n * n, 2))
 
