@@ -13,8 +13,6 @@ def compute_lspi_iteration(encoded_states, encoded_next_states, actions, rewards
 
     phi_st_at = linear_policy.get_q_features(encoded_states, actions)
     a_t_1 = linear_policy.get_max_action(encoded_next_states)
-    a_t_1[np.where(done_flags == True)] = 1
-
     phi_st1_at1 = linear_policy.get_q_features(encoded_next_states, a_t_1)
 
     assert phi_st_at.shape == phi_st1_at1.shape
@@ -26,7 +24,11 @@ def compute_lspi_iteration(encoded_states, encoded_next_states, actions, rewards
 
     c_k_n = np.zeros(shape=(features, features))
     for sample in range(n):
-        c_k_n += phi_st_at[sample].reshape(features, 1) @ (phi_st_at[sample] - gamma * phi_st1_at1[sample]).reshape((1, features))
+        if not done_flags[sample]:
+            c_k_n += phi_st_at[sample].reshape(features, 1) @ \
+                     (phi_st_at[sample] - gamma * phi_st1_at1[sample]).reshape((1, features))
+        else:
+            c_k_n += phi_st_at[sample].reshape(features, 1) @ (phi_st_at[sample]).reshape((1, features))
 
     next_w = np.linalg.inv(c_k_n) @ d_k_n
 
@@ -37,7 +39,7 @@ if __name__ == '__main__':
     samples_to_collect = 100000
     # samples_to_collect = 150000
     # samples_to_collect = 10000
-    number_of_kernels_per_dim = [12, 10]
+    number_of_kernels_per_dim = [10, 8]
     gamma = 0.99
     w_updates = 100
     evaluation_number_of_games = 10

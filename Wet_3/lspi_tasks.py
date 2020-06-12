@@ -12,7 +12,7 @@ from operator import add
 
 
 def training_the_model(samples_to_collect=100000, seed=100):
-    number_of_kernels_per_dim = [12, 10]
+    number_of_kernels_per_dim = [10, 8]
     gamma = 0.999
     w_updates = 20
     evaluation_number_of_games = 50
@@ -73,38 +73,46 @@ def plot_success_rate_vs_lspi_iteration(success_rate_vs_iteration, samples=10000
     plt.show()
 
 
-def plotting_success_rate_vs_iteration():
-    samples_to_collect = 100000
-    number_of_seeds = 3.0
-    success_rate_vs_iteration_100 = training_the_model(samples_to_collect, 100)
-    success_rate_vs_iteration_200 = training_the_model(samples_to_collect, 200)
-    success_rate_vs_iteration_300 = training_the_model(samples_to_collect, 300)
-
-    success_rate_vs_iteration_avg = list(map(add, success_rate_vs_iteration_100, success_rate_vs_iteration_200))
-    success_rate_vs_iteration_avg = list(map(add, success_rate_vs_iteration_avg, success_rate_vs_iteration_300))
-    success_rate_vs_iteration_avg = list(map(lambda x: x / number_of_seeds, success_rate_vs_iteration_avg))
-
-    plot_success_rate_vs_lspi_iteration(success_rate_vs_iteration_avg, samples_to_collect)
+def __averged_3_lists(l1, l2, l3):
+    avg = list(map(add, l1, l2))
+    avg = list(map(add, avg, l3))
+    avg = list(map(lambda x: x / 3, avg))
+    return avg
 
 
 def plotting_success_rate_vs_samples():
     samples_to_collect = 25000
-    success_rate_vs_iteration_25000 = training_the_model(samples_to_collect, 100)
-    plot_success_rate_vs_lspi_iteration(success_rate_vs_iteration_25000, samples_to_collect)
+    success_rate_vs_iteration_25000_0 = training_the_model(samples_to_collect, 123)
+    success_rate_vs_iteration_25000_1 = training_the_model(samples_to_collect, 234)
+    success_rate_vs_iteration_25000_2 = training_the_model(samples_to_collect, 345)
+    avg_25000 = __averged_3_lists(success_rate_vs_iteration_25000_0, success_rate_vs_iteration_25000_1,
+                                  success_rate_vs_iteration_25000_2)
+    plot_success_rate_vs_lspi_iteration(avg_25000, samples_to_collect)
 
     samples_to_collect *= 2
-    success_rate_vs_iteration_50000 = training_the_model(samples_to_collect, 100)
-    plot_success_rate_vs_lspi_iteration(success_rate_vs_iteration_50000, samples_to_collect)
+    success_rate_vs_iteration_50000_0 = training_the_model(samples_to_collect, 123)
+    success_rate_vs_iteration_50000_1 = training_the_model(samples_to_collect, 234)
+    success_rate_vs_iteration_50000_2 = training_the_model(samples_to_collect, 345)
+    avg_50000 = __averged_3_lists(success_rate_vs_iteration_50000_0, success_rate_vs_iteration_50000_1,
+                                  success_rate_vs_iteration_50000_2)
+    plot_success_rate_vs_lspi_iteration(avg_50000, samples_to_collect)
 
     samples_to_collect *= 2
-    success_rate_vs_iteration_100000 = training_the_model(samples_to_collect, 100)
-    plot_success_rate_vs_lspi_iteration(success_rate_vs_iteration_100000, samples_to_collect)
+    success_rate_vs_iteration_100000_0 = training_the_model(samples_to_collect, 123)
+    success_rate_vs_iteration_100000_1 = training_the_model(samples_to_collect, 234)
+    success_rate_vs_iteration_100000_2 = training_the_model(samples_to_collect, 345)
+    avg_100000 = __averged_3_lists(success_rate_vs_iteration_100000_0, success_rate_vs_iteration_100000_1,
+                                   success_rate_vs_iteration_100000_2)
+    plot_success_rate_vs_lspi_iteration(avg_100000, samples_to_collect)
 
     samples_to_collect *= 2
-    success_rate_vs_iteration_200000 = training_the_model(samples_to_collect, 100)
-    plot_success_rate_vs_lspi_iteration(success_rate_vs_iteration_200000, samples_to_collect)
+    success_rate_vs_iteration_200000_0 = training_the_model(samples_to_collect, 123)
+    success_rate_vs_iteration_200000_1 = training_the_model(samples_to_collect, 234)
+    success_rate_vs_iteration_200000_2 = training_the_model(samples_to_collect, 345)
+    avg_200000 = __averged_3_lists(success_rate_vs_iteration_200000_0, success_rate_vs_iteration_200000_1,
+                                   success_rate_vs_iteration_200000_2)
+    plot_success_rate_vs_lspi_iteration(avg_200000, samples_to_collect)
 
 
 if __name__ == "__main__":
-    plotting_success_rate_vs_iteration()
     plotting_success_rate_vs_samples()
