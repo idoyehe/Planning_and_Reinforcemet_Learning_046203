@@ -16,7 +16,7 @@ def training_the_model(samples_to_collect=100000, seed=100):
     gamma = 0.999
     w_updates = 20
     evaluation_number_of_games = 50
-    evaluation_max_steps_per_game = 1000
+    evaluation_max_steps_per_game = 300
     np.random.seed(seed)
 
     env = MountainCarWithResetEnv()
