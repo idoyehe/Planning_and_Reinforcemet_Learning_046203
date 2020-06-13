@@ -12,7 +12,7 @@ class Solver:
         self._max_normal = 1
         # get state \action information
         self.data_transformer = DataTransformer()
-        state_mean = [-3.00283763e-01,  5.61618575e-05]
+        state_mean = [-3.00283763e-01, 5.61618575e-05]
         state_std = [0.51981243, 0.04024895]
         self.data_transformer.set(state_mean, state_std)
         self._actions = number_of_actions
@@ -34,18 +34,18 @@ class Solver:
         return features
 
     def get_q_val(self, features, action):
-        theta_ = self.theta[action*self.number_of_features: (1 + action)*self.number_of_features]
+        theta_ = self.theta[action * self.number_of_features: (1 + action) * self.number_of_features]
         return np.dot(features, theta_)
 
     def get_all_q_vals(self, features):
         all_vals = np.zeros(self._actions)
         for a in range(self._actions):
-            all_vals[a] = solver.get_q_val(features, a)
+            all_vals[a] = self.get_q_val(features, a)
         return all_vals
 
     def get_max_action(self, state):
-        sparse_features = solver.get_features(state)
-        q_vals = solver.get_all_q_vals(sparse_features)
+        sparse_features = self.get_features(state)
+        q_vals = self.get_all_q_vals(sparse_features)
         return np.argmax(q_vals)
 
     def get_state_action_features(self, state, action):
@@ -56,8 +56,24 @@ class Solver:
 
     def update_theta(self, state, action, reward, next_state, done):
         # compute the new weights and set in self.theta. also return the bellman error (for tracking).
-        assert False, "implement update_theta"
-        return 0.0
+
+        current_theta = self.theta.copy()
+
+        phi_st_at = self.get_state_action_features(state, action)
+        Q_st_at = phi_st_at.transpose() @ current_theta
+
+        next_action = self.get_max_action(next_state)
+        phi_st1_at1 = self.get_state_action_features(next_state, next_action)
+        Q_st1_at1 = phi_st1_at1.transpose() @ current_theta
+
+        if not done:
+            t_d = reward + self.gamma * Q_st1_at1 - Q_st_at
+            self.theta = current_theta + self.learning_rate * t_d * phi_st_at
+        else:
+            t_d = reward
+            self.theta = current_theta + self.learning_rate * reward * phi_st_at
+
+        return -t_d
 
 
 def modify_reward(reward):
