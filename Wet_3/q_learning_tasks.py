@@ -43,11 +43,11 @@ def run_q_learning_training(seed, epsilon=0.1, max_episodes=1000):
         train_statistics["init_state"].append(max(Q_st_0, Q_st_1, Q_st_2))
         train_statistics["reward"].append(episode_gain)
 
-        # if episode_index % 100 == 99:
-        #     train_statistics["bellman_error"].append(np.mean(bellman_error))
-        #     train_statistics["bellman_error_index"].append(bellman_error_index)
-        #     bellman_error_index += 100
-        #     bellman_error = list()
+        if episode_index % 100 == 99:
+            train_statistics["bellman_error"].append(np.mean(bellman_error))
+            train_statistics["bellman_error_index"].append(bellman_error_index)
+            bellman_error_index += 100
+            bellman_error = list()
 
         if episode_index % 10 == 9:
             test_gains = [run_episode(env, solver, is_train=False, epsilon=0.)[0] for _ in range(10)]
@@ -97,17 +97,26 @@ def plot_statistics_by_seed(seed):
     error_per_training_episode_vs_training_episodes(train_statistics["bellman_error"], train_statistics["bellman_error_index"])
 
 
-def plot_statistics_by_epsilon(seed, epsilon):
-    train_statistics = run_q_learning_training(seed, epsilon)
-    reward_per_training_episode_vs_training_episodes(train_statistics["reward"])
+def plot_statistics_by_epsilon(epsilon):
+    train_statistics = run_q_learning_training(100, epsilon)
+    l_1 = train_statistics["reward"]
+    train_statistics = run_q_learning_training(200, epsilon)
+    l_2 = train_statistics["reward"]
+    train_statistics = run_q_learning_training(300, epsilon)
+    l_3 = train_statistics["reward"]
+
+    zipped_list = zip(l_1, l_2, l_3)
+    avg_list = [sum(item) / 3 for item in zipped_list]
+
+    reward_per_training_episode_vs_training_episodes(avg_list)
 
 
 if __name__ == "__main__":
-    # plot_statistics_by_seed(100)
-    # plot_statistics_by_seed(200)
-    # plot_statistics_by_seed(300)
-    plot_statistics_by_epsilon(123, 0.01)
-    plot_statistics_by_epsilon(123, 0.3)
-    plot_statistics_by_epsilon(123, 0.5)
-    plot_statistics_by_epsilon(123, 0.75)
-    plot_statistics_by_epsilon(123, 1)
+    plot_statistics_by_seed(100)
+    plot_statistics_by_seed(200)
+    plot_statistics_by_seed(300)
+    plot_statistics_by_epsilon(0.01)
+    plot_statistics_by_epsilon(0.3)
+    plot_statistics_by_epsilon(0.5)
+    plot_statistics_by_epsilon(0.75)
+    plot_statistics_by_epsilon(1)
