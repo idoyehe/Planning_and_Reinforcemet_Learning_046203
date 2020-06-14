@@ -58,13 +58,11 @@ class Solver:
         # compute the new weights and set in self.theta. also return the bellman error (for tracking).
 
         current_theta = self.theta.copy()
-
         phi_st_at = self.get_state_action_features(state, action)
-        Q_st_at = phi_st_at.transpose() @ current_theta
+        Q_st_at = self.get_q_val(self.get_features(state), action)
 
         next_action = self.get_max_action(next_state)
-        phi_st1_at1 = self.get_state_action_features(next_state, next_action)
-        Q_st1_at1 = phi_st1_at1.transpose() @ current_theta
+        Q_st1_at1 = self.get_q_val(self.get_features(next_state), next_action)
 
         if not done:
             t_d = reward + self.gamma * Q_st1_at1 - Q_st_at
